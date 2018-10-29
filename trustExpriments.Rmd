@@ -7,12 +7,97 @@ output:
 ---
 
 ```{r}
-d1 <- read.csv("./data/broockman_green_anon_pooled_fb_users_only.csv")
+# Load the expriment's data
+d1 <- read.csv("./data/data1.csv")
 head(d1)
-``` 
 
+``` 
+*The experiment is divided into 4 different experiments to allow for different vides and different subjects also*
+*We can use these experiments for blocking if needed*
 ```{r}
 # Summary of the observations from the expriment
 summary(d1)
-
 ```
+```{r}
+# Randomize for assignment to the experiment
+e.rand.exp <- function(num_experiments, num_subjects) { 
+  if (!num_experiments | !num_subjects) {
+    stop('Need the number of experiments and the total number of subjects')
+  }
+  tempv = numeric(0)
+  each = num_subjects/num_experiments
+  for (i in 1:num_experiments) { 
+    tempv = append(tempv, c(rep(i, each)))
+  }
+  sample(tempv)
+} 
+```
+
+```{r}
+# Testing e.rand.exp
+e.rand.exp(4,16)
+```
+```{r}
+# Assigning the random experiments
+num_exp = 4
+d1$Experiment = e.rand.exp(num_exp, nrow(d1))
+print(d1$Experiment)
+```
+
+```{r}
+# Randomize for treatment and control within one experiment
+e.rand.treatment <- function(control, treatment) { 
+  sample(c(rep(0, control), rep(1, treatment)))
+  } 
+```
+
+```{r}
+# extract the rows for each experiment
+
+# Create DF for each expriment
+exp1 = d1[which(d1$Experiment == 1),]
+exp2 = d1[which(d1$Experiment == 2),]
+exp3 = d1[which(d1$Experiment == 3),]
+exp4 = d1[which(d1$Experiment == 4),]
+```
+
+```{r}
+# we measure trust in a scale from 0 to 4 where 4 is the most trustworthy
+# We'll fill the control and treatment with a normal distribution in that range
+head(exp4)
+```
+```{r}
+# Assign treatment and control for each expriment
+exp1$Treatment = e.rand.treatment(nrow(exp1)/2, nrow(exp1)/2)
+exp2$Treatment = e.rand.treatment(nrow(exp2)/2, nrow(exp2)/2)
+exp3$Treatment = e.rand.treatment(nrow(exp3)/2, nrow(exp3)/2)
+exp4$Treatment = e.rand.treatment(nrow(exp4)/2, nrow(exp4)/2)
+
+head(exp4$Treatment)
+```
+```{r}
+nrow(d1)
+```
+
+```{r}
+# we measure trust in a scale from 0 to 1 where 1 is the most trustworthy
+# We'll fill the control and treatment with a normal distribution in that range for each expriment
+nrow(exp1)
+exp1$y.0. = c(rep(2,nrow(exp1)))
+exp2$y.0. = c(rep(2,nrow(exp2)))
+exp3$y.0. = c(rep(2,nrow(exp3)))
+exp4$y.0. = c(rep(2,nrow(exp4)))
+print(exp1$y.0.)
+
+exp1$y.1. = c(rep(1,nrow(exp1)))
+exp2$y.1. = c(rep(1,nrow(exp2)))
+exp3$y.1. = c(rep(1,nrow(exp3)))
+exp4$y.1. = c(rep(1,nrow(exp4)))
+print(exp1$y.0.)
+```
+
+```{r}
+d1
+exp4
+```
+
