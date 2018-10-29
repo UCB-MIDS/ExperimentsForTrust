@@ -1,0 +1,18 @@
+---
+title: "Expriments for Trust"
+author: "Group"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+d1 <- read.csv("./data/broockman_green_anon_pooled_fb_users_only.csv")
+head(d1)
+``` 
+
+```{r}
+# Summary of the observations from the expriment
+summary(d1)
+
+```
