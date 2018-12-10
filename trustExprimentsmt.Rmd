@@ -32,14 +32,95 @@ summary(dmt)
 ```
 ```{r}
 # Distribution of treatment vs control
-hist(dmt$treat, main='Distribution of treatment', xlab='Treatment')
+hist(dmt$treat, main='Distribution of treatment, 1 is treatment', xlab='Treatment')
 ```
-
-
+```{r}
+# Distribution of male vs female
+hist(dmt$female, main='Gender Distribution', xlab='Gender, 1 is female')
+```
+**These distributions are fine**
 ```{r}
 # Regressing trust on treatment
 lrmt = lm(trust ~ treat, data = dmt)
 summary(lrmt)
 ```
+```{r}
+ate = lrmt$coefficients['treat']
+paste0('The ATE of the dissonace video is: ', ate)
+```
 
 
+```{r}
+# Adding Female as the covariate
+lrmt1 = lm(trust ~ treat + female * treat, data = dmt)
+summary(lrmt1)
+```
+
+
+```{r}
+# Randomization inference
+# Creating new variables for randomizing run and run_lag
+dmt$treat_rnd = sample(dmt$treat)
+head(dmt)
+summary(dmt)
+```
+```{r}
+# Repeating the regression with the randomized treatment variable
+# Regressing trust on treatment
+lrmt2 = lm(trust ~ treat_rnd, data = dmt, na.action = na.omit)
+summary(lrmt2)
+```
+```{r}
+names(summary(lrmt2))
+summary(lrmt2)$coefficients
+summary(lrmt2)$coefficients[,2]['treat_rnd']
+```
+```{r}
+# Generic function to randomly(pseudo) pick the treatment assignments
+coeff_treat_rnd <- function(d) {
+  d$treat_rnd = sample(d$treat)
+  lmr = lm(trust ~ treat_rnd, data=dmt, na.action = na.omit)
+  return (lmr$coefficients['treat_rnd'])
+}
+
+# Trying another randomization
+coeff_treat_rnd(dmt)
+```
+```{r}
+# 1K Randomizations
+h.distribution.under.sharp.null <- replicate(10000, coeff_treat_rnd(dmt))
+h.ate.mean <- mean(h.distribution.under.sharp.null)
+paste0("Mean fromm 1k randomizations: ", h.ate.mean)
+
+```
+
+```{r}
+# Graph for the estimates
+plot(density(h.distribution.under.sharp.null), 
+     main = "Density under Sharp Null")
+
+# Adding our original ATE to the plot
+abline(v = ate, col = "blue")
+
+# Adding the mean to the plot
+abline(v = mean(h.distribution.under.sharp.null), col = 'orange')
+```
+```{r}
+# p value
+pv = mean(h.distribution.under.sharp.null >= ate)
+paste0('p value: ', pv)
+```
+```{r}
+# num of assignments that generate an estimated ATE at least as large as the actual
+n <- sum(h.distribution.under.sharp.null >= ate)
+paste0("Number of assignments that generate an ATE at least as large as what we got from the experiment: ", n)
+```
+
+
+```{r}
+# Standard error
+se = sd(h.distribution.under.sharp.null)/sqrt(length(h.distribution.under.sharp.null))
+paste0('Standard error: ', se)
+                                             
+                                            
+```
