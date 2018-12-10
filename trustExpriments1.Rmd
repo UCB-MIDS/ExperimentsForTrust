@@ -1,0 +1,117 @@
+---
+title: "Expriments for Trust"
+author: "Group"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+# Load the expriment's data
+dff <- read.csv("./cleaneddata/ff.csv")
+head(d1)
+``` 
+```{r}
+summary(d1)
+```
+
+```{r}
+# Adding columns for control, treatment and clusters (M, F)
+t = c("FTreatment", "MTreatment")
+s = c("FTreatment", "FControl")
+dff$treat = ifelse(dff$FL_3_DO %in% t, 1, 0 )
+dff$female = ifelse(dff$FL_3_DO %in% s, 1, 0)
+dff$trust = ifelse(dff$Q7 == "I trust what the speaker was saying.", 1,
+                   ifelse (dff$Q6 == "Paleo", NA, 0))
+```
+```{r}
+head(dff)
+```
+
+```{r}
+# Summary of the observations from the expriment
+summary(d1)
+```
+```{r}
+# Randomize for assignment to the experiment
+e.rand.exp <- function(num_experiments, num_subjects) { 
+  if (!num_experiments | !num_subjects) {
+    stop('Need the number of experiments and the total number of subjects')
+  }
+  tempv = numeric(0)
+  each = num_subjects/num_experiments
+  for (i in 1:num_experiments) { 
+    tempv = append(tempv, c(rep(i, each)))
+  }
+  sample(tempv)
+} 
+```
+
+```{r}
+# Testing e.rand.exp
+e.rand.exp(4,16)
+```
+```{r}
+# Assigning the random experiments
+num_exp = 4
+d1$Experiment = e.rand.exp(num_exp, nrow(d1))
+print(d1$Experiment)
+```
+
+```{r}
+# Randomize for treatment and control within one experiment
+e.rand.treatment <- function(control, treatment) { 
+  sample(c(rep(0, control), rep(1, treatment)))
+  } 
+```
+
+```{r}
+# extract the rows for each experiment
+
+# Create DF for each expriment
+exp1 = d1[which(d1$Experiment == 1),]
+exp2 = d1[which(d1$Experiment == 2),]
+exp3 = d1[which(d1$Experiment == 3),]
+exp4 = d1[which(d1$Experiment == 4),]
+```
+
+```{r}
+# we measure trust in a scale from 0 to 4 where 4 is the most trustworthy
+# We'll fill the control and treatment with a normal distribution in that range
+head(exp4)
+```
+```{r}
+# Assign treatment and control for each expriment
+exp1$Treatment = e.rand.treatment(nrow(exp1)/2, nrow(exp1)/2)
+exp2$Treatment = e.rand.treatment(nrow(exp2)/2, nrow(exp2)/2)
+exp3$Treatment = e.rand.treatment(nrow(exp3)/2, nrow(exp3)/2)
+exp4$Treatment = e.rand.treatment(nrow(exp4)/2, nrow(exp4)/2)
+
+head(exp4$Treatment)
+```
+```{r}
+nrow(d1)
+```
+
+```{r}
+# we measure trust in a scale from 0 to 1 where 1 is the most trustworthy
+# We'll fill the control and treatment with a normal distribution in that range for each expriment
+nrow(exp1)
+exp1$y.0. = c(rep(2,nrow(exp1)))
+exp2$y.0. = c(rep(2,nrow(exp2)))
+exp3$y.0. = c(rep(2,nrow(exp3)))
+exp4$y.0. = c(rep(2,nrow(exp4)))
+print(exp1$y.0.)
+
+exp1$y.1. = c(rep(1,nrow(exp1)))
+exp2$y.1. = c(rep(1,nrow(exp2)))
+exp3$y.1. = c(rep(1,nrow(exp3)))
+exp4$y.1. = c(rep(1,nrow(exp4)))
+print(exp1$y.0.)
+```
+
+```{r}
+d1
+exp4
+```
+

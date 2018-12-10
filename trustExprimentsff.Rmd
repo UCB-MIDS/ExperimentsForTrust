@@ -1,0 +1,39 @@
+---
+title: "Expriments for Trust"
+author: "Group"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+# Load the expriment's data
+dff <- read.csv("./cleaneddata/ff.csv")
+head(dff)
+``` 
+```{r}
+summary(dff)
+```
+
+```{r}
+# Adding columns for control, treatment and clusters (M, F)
+t = c("FTreatment", "MTreatment")
+s = c("FTreatment", "FControl")
+dff$treat = ifelse(dff$FL_3_DO %in% t, 1, 0 )
+dff$female = ifelse(dff$FL_3_DO %in% s, 1, 0)
+dff$trust = ifelse(dff$Q7 == "I trust what the speaker was saying.", 1,
+                   ifelse (dff$Q6 == "Paleo", NA, 0))
+```
+```{r}
+head(dff)
+```
+```{r}
+summary(dff)
+```
+```{r}
+# Regressing trust on treatment
+lrff = lm(trust ~ treat, data = dff)
+summary(lrff)
+```
+
+

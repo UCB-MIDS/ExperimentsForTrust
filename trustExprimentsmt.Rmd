@@ -1,0 +1,45 @@
+---
+title: "Expriments for Trust"
+author: "Group"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+# Load the expriment's data
+dmt <- read.csv("./cleaneddata/mturk.csv")
+head(dmt)
+``` 
+```{r}
+summary(dmt)
+```
+
+```{r}
+# Adding columns for control, treatment and clusters (M, F)
+t = c("FTreatment", "MTreatment")
+s = c("FTreatment", "FControl")
+dmt$treat = ifelse(dff$FL_3_DO %in% t, 1, 0 )
+dmt$female = ifelse(dff$FL_3_DO %in% s, 1, 0)
+dmt$trust = ifelse(dff$Q7 == "I trust what the speaker was saying.", 1,
+                   ifelse (dff$Q6 == "Paleo" | dff$Q6 == "" , NA, 0))
+```
+```{r}
+head(dmt, 100)
+```
+```{r}
+summary(dmt)
+```
+```{r}
+# Distribution of treatment vs control
+hist(dmt$treat, main='Distribution of treatment', xlab='Treatment')
+```
+
+
+```{r}
+# Regressing trust on treatment
+lrmt = lm(trust ~ treat, data = dmt)
+summary(lrmt)
+```
+
+
