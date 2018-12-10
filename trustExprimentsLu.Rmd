@@ -8,7 +8,7 @@ output:
 
 ```{r}
 # Load the expriment's data
-dmt <- read.csv("./cleaneddata/mturk.csv")
+dmt <- read.csv("./cleaneddata/lucid.csv")
 head(dmt)
 ``` 
 ```{r}
