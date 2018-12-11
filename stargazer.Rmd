@@ -1,0 +1,51 @@
+---
+title: "Document to Produce Stargazer Table"
+author: "Group"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+# Load all data
+dff <- read.csv("./cleaneddata/ff.csv")
+dl <- read.csv("./cleaneddata/lucid.csv")
+dmt <- read.csv("./cleaneddata/mturk.csv")
+
+```
+
+```{r}
+# Adding columns for control, treatment and clusters (M, F)
+t = c("FTreatment", "MTreatment")
+s = c("FTreatment", "FControl")
+dmt$treat = ifelse(dmt$FL_3_DO %in% t, 1, 0 )
+dmt$female = ifelse(dmt$FL_3_DO %in% s, 1, 0)
+dmt$trust = ifelse(dmt$Q7 == "I trust what the speaker was saying.", 1,
+                   ifelse (dmt$Q6 != "Pritikin" | dmt$Q7 == "", NA, 0))
+
+dl$treat = ifelse(dl$FL_3_DO %in% t, 1, 0 )
+dl$female = ifelse(dl$FL_3_DO %in% s, 1, 0)
+dl$trust = ifelse(dl$Q7 == "I trust what the speaker was saying.", 1,
+                   ifelse (dl$Q6 != "Pritikin" | dl$Q7 == "", NA, 0))
+
+dff$treat = ifelse(dff$FL_3_DO %in% t, 1, 0 )
+dff$female = ifelse(dff$FL_3_DO %in% s, 1, 0)
+dff$trust = ifelse(dff$Q7 == "I trust what the speaker was saying.", 1,
+                   ifelse (dff$Q6 != "Pritikin" | dff$Q7 == "", NA, 0))
+```
+
+```{r}
+# Models with female covariate
+
+lmff = lm(trust ~ treat + female * treat, data = dff)
+lml = lm(trust ~ treat + female * treat, data = dl)
+lmmt = lm(trust ~ treat + female * treat, data = dmt)
+```
+
+```{r star, results = 'asis', warning=FALSE, message=FALSE}
+# Stargazer
+
+library(stargazer)
+
+stargazer(lmff, lml, lmmt, title="Experimental Results", column.labels=c("FriendsFamily","Lucid","MTurk"))
+```
