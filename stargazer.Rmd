@@ -35,11 +35,16 @@ dff$trust = ifelse(dff$Q7 == "I trust what the speaker was saying.", 1,
 ```
 
 ```{r}
+dall <- rbind(dff, dl, dmt)
+```
+
+```{r}
 # Models with female covariate
 
 lmff = lm(trust ~ treat + female * treat, data = dff)
 lml = lm(trust ~ treat + female * treat, data = dl)
 lmmt = lm(trust ~ treat + female * treat, data = dmt)
+lmall = lm(trust ~ treat + female * treat, data = dall)
 ```
 
 ```{r star, results = 'asis', warning=FALSE, message=FALSE}
@@ -47,5 +52,5 @@ lmmt = lm(trust ~ treat + female * treat, data = dmt)
 
 library(stargazer)
 
-stargazer(lmff, lml, lmmt, title="Experimental Results", column.labels=c("FriendsFamily","Lucid","MTurk"))
+stargazer(lmff, lml, lmmt, lmall, title="Experimental Results", column.labels=c("FriendsFamily","Lucid","MTurk","AllSources"))
 ```
