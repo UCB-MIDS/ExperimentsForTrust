@@ -126,10 +126,10 @@ head(dall2)
 summary(dall2)
 ```
 ```{r}
-# 10K Randomizations
-h.distribution.under.sharp.null.2 <- replicate(10000, coeff_treat_rnd(dall2))
+# 100K Randomizations
+h.distribution.under.sharp.null.2 <- replicate(100000, coeff_treat_rnd(dall2))
 h.ate.mean.2 <- mean(h.distribution.under.sharp.null.2)
-paste0("Mean fromm 1k randomizations: ", h.ate.mean.2)
+paste0("Mean fromm 100k randomizations: ", h.ate.mean.2)
 
 ```
 ```{r}
@@ -146,7 +146,7 @@ abline(v = mean(h.distribution.under.sharp.null.2), col = 'orange')
 ```{r}
 # Values close to what we get
 pn2 = sum(abs(h.distribution.under.sharp.null.2) >= abs(ate))
-paste0('p value: ', pn2)
+paste0('Number of observations bigger than the experiment: ', pn2)
 
 # 2 tailed p value
 pv2 = mean(abs(h.distribution.under.sharp.null.2) >= abs(ate))
