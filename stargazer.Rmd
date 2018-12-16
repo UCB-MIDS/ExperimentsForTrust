@@ -46,6 +46,13 @@ lml = lm(trust ~ treat + female * treat, data = dl)
 lmmt = lm(trust ~ treat + female * treat, data = dmt)
 lmall = lm(trust ~ treat + female * treat, data = dall)
 ```
+```{r}
+# Results from the regression with all subjects
+summary(lmall)
+ate = lmall$coefficients['treat']
+paste0('The ATE of the dissonace video is: ', ate)
+```
+** The ATE is -0.22262 (0.07585) with a p value of 0.00364 ****
 
 ```{r star, results = 'asis', warning=FALSE, message=FALSE}
 # Stargazer
@@ -53,4 +60,95 @@ lmall = lm(trust ~ treat + female * treat, data = dall)
 library(stargazer)
 
 stargazer(lmff, lml, lmmt, lmall, title="Experimental Results", column.labels=c("FriendsFamily","Lucid","MTurk","AllSources"))
+```
+```{r}
+# Randomization inference among all the subjects
+# Not worrying about M & F distributions in this one
+dall$treat_rnd = sample(dall$treat)
+head(dall)
+summary(dall)
+```
+```{r}
+# Generic function to randomly(pseudo) pick the treatment assignments
+coeff_treat_rnd <- function(d) {
+  d$treat_rnd = sample(d$treat)
+  lmr = lm(trust ~ treat_rnd + female * treat, data=d, na.action = na.omit)
+  return (lmr$coefficients['treat_rnd'])
+}
+
+# Trying another randomization
+coeff_treat_rnd(dall)
+```
+```{r}
+# 10K Randomizations
+h.distribution.under.sharp.null <- replicate(10000, coeff_treat_rnd(dall))
+h.ate.mean <- mean(h.distribution.under.sharp.null)
+paste0("Mean fromm 1k randomizations: ", h.ate.mean)
+
+```
+```{r}
+# Graph for the estimates
+plot(density(h.distribution.under.sharp.null), 
+     main = "Density under Sharp Null")
+
+# Adding our original ATE to the plot
+abline(v = ate, col = "blue")
+
+# Adding the mean to the plot
+abline(v = mean(h.distribution.under.sharp.null), col = 'orange')
+```
+```{r}
+# Values close to what we get
+pn = sum(abs(h.distribution.under.sharp.null) >= abs(ate))
+paste0('p value: ', pn)
+
+# 2 tailed p value
+pv = mean(abs(h.distribution.under.sharp.null) >= abs(ate))
+paste0('p value: ', pv)
+```
+```{r}
+# RI by randomizing within male and female groups
+dallf = dall[which(dall$female == 1), ]
+dallf$treat_rnd = sample(dallf$treat)
+head(dallf)
+summary(dallf)
+```
+```{r}
+# RI by randomizing within male and female groups
+dallm = dall[which(dall$female == 0), ]
+dallm$treat_rnd = sample(dallm$treat)
+head(dallm)
+summary(dallm)
+```
+```{r}
+dall2 = rbind(dallf, dallm)
+head(dall2)
+summary(dall2)
+```
+```{r}
+# 10K Randomizations
+h.distribution.under.sharp.null.2 <- replicate(10000, coeff_treat_rnd(dall2))
+h.ate.mean.2 <- mean(h.distribution.under.sharp.null.2)
+paste0("Mean fromm 1k randomizations: ", h.ate.mean.2)
+
+```
+```{r}
+# Graph for the estimates
+plot(density(h.distribution.under.sharp.null.2), 
+     main = "Density under Sharp Null")
+
+# Adding our original ATE to the plot
+abline(v = ate, col = "blue")
+
+# Adding the mean to the plot
+abline(v = mean(h.distribution.under.sharp.null.2), col = 'orange')
+```
+```{r}
+# Values close to what we get
+pn2 = sum(abs(h.distribution.under.sharp.null.2) >= abs(ate))
+paste0('p value: ', pn2)
+
+# 2 tailed p value
+pv2 = mean(abs(h.distribution.under.sharp.null.2) >= abs(ate))
+paste0('p value: ', pv2)
 ```
