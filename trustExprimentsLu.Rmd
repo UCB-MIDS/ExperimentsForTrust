@@ -7,41 +7,62 @@ output:
 ---
 
 ```{r}
+library(ggplot2)
+library(ggthemr)
+library(dplyr)
+```
+
+```{r}
 # Load the expriment's data
-dmt <- read.csv("./cleaneddata/lucid.csv")
-head(dmt)
+dlu <- read.csv("./cleaneddata/lucid.csv")
+head(dlu)
 ``` 
 ```{r}
-summary(dmt)
+dlu$Outcome <- ifelse(dlu$Q7=="I do not trust what the speaker was saying.", "Trust", ifelse(dlu$Q7=="I trust what the speaker was saying.", "No Trust", "NA"))
+
+summary(dlu)
+```
+
+
+```{r}
+ggthemr('earth', type="outer", layout='scientific', spacing=2)
+
+p3 <- ggplot(data=dlu %>% filter(Outcome != "NA"), aes(x=FL_3_DO)) +
+  geom_bar(aes(y=FL_3_DO, fill=Outcome), stat = "identity") +
+  labs(title="Counts", y="Total Counts", x = "Tmt vs. Control") +
+  ylab("") +
+  theme_classic() #+ theme(legend.position = "none")
+
+p3
 ```
 
 ```{r}
 # Adding columns for control, treatment and clusters (M, F)
 t = c("FTreatment", "MTreatment")
 s = c("FTreatment", "FControl")
-dmt$treat = ifelse(dmt$FL_3_DO %in% t, 1, 0 )
-dmt$female = ifelse(dmt$FL_3_DO %in% s, 1, 0)
-dmt$trust = ifelse(dmt$Q7 == "I trust what the speaker was saying.", 1,
-                   ifelse (dmt$Q6 != "Pritikin" | dmt$Q7 == "", NA, 0))
+dlu$treat = ifelse(dlu$FL_3_DO %in% t, 1, 0 )
+dlu$female = ifelse(dlu$FL_3_DO %in% s, 1, 0)
+dlu$trust = ifelse(dlu$Q7 == "I trust what the speaker was saying.", 1,
+                   ifelse (dlu$Q6 != "Pritikin" | dlu$Q7 == "", NA, 0))
 ```
 ```{r}
-head(dmt, 100)
+head(dlu, 100)
 ```
 ```{r}
-summary(dmt)
+summary(dlu)
 ```
 ```{r}
 # Distribution of treatment vs control
-hist(dmt$treat, main='Distribution of treatment, 1 is treatment', xlab='Treatment')
+hist(dlu$treat, main='Distribution of treatment, 1 is treatment', xlab='Treatment')
 ```
 ```{r}
 # Distribution of male vs female
-hist(dmt$female, main='Gender Distribution', xlab='Gender, 1 is female')
+hist(dlu$female, main='Gender Distribution', xlab='Gender, 1 is female')
 ```
 **These distributions are fine**
 ```{r}
 # Regressing trust on treatment
-lrmt = lm(trust ~ treat, data = dmt)
+lrmt = lm(trust ~ treat, data = dlu)
 summary(lrmt)
 ```
 ```{r}
@@ -52,7 +73,7 @@ paste0('The ATE of the dissonace video is: ', ate)
 
 ```{r}
 # Adding Female as the covariate
-lrmt1 = lm(trust ~ treat + female * treat, data = dmt)
+lrmt1 = lm(trust ~ treat + female * treat, data = dlu)
 summary(lrmt1)
 ```
 
@@ -60,14 +81,14 @@ summary(lrmt1)
 ```{r}
 # Randomization inference
 # Creating new variables for randomizing run and run_lag
-dmt$treat_rnd = sample(dmt$treat)
-head(dmt)
-summary(dmt)
+dlu$treat_rnd = sample(dlu$treat)
+head(dlu)
+summary(dlu)
 ```
 ```{r}
 # Repeating the regression with the randomized treatment variable
 # Regressing trust on treatment
-lrmt2 = lm(trust ~ treat_rnd, data = dmt, na.action = na.omit)
+lrmt2 = lm(trust ~ treat_rnd, data = dlu, na.action = na.omit)
 summary(lrmt2)
 ```
 ```{r}
@@ -79,16 +100,16 @@ summary(lrmt2)$coefficients[,2]['treat_rnd']
 # Generic function to randomly(pseudo) pick the treatment assignments
 coeff_treat_rnd <- function(d) {
   d$treat_rnd = sample(d$treat)
-  lmr = lm(trust ~ treat_rnd, data=dmt, na.action = na.omit)
+  lmr = lm(trust ~ treat_rnd, data=dlu, na.action = na.omit)
   return (lmr$coefficients['treat_rnd'])
 }
 
 # Trying another randomization
-coeff_treat_rnd(dmt)
+coeff_treat_rnd(dlu)
 ```
 ```{r}
 # 1K Randomizations
-h.distribution.under.sharp.null <- replicate(10000, coeff_treat_rnd(dmt))
+h.distribution.under.sharp.null <- replicate(10000, coeff_treat_rnd(dlu))
 h.ate.mean <- mean(h.distribution.under.sharp.null)
 paste0("Mean fromm 1k randomizations: ", h.ate.mean)
 
