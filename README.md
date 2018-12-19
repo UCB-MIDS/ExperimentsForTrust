@@ -15,13 +15,13 @@ https://docs.google.com/document/d/17VUy9-p6KJ5eurocvMWhybphFlbG6CpzMpwHJXhPYKY/
 
 About code
 
-data (dir) has the some dummy data and the original reports from Qualtrics
-Cleaneddata(dir) has data from all sources after scrubbing
+data (dir) has the some dummy data and the original reports from Qualtrics.
+Cleaneddata(dir) has data from all sources after scrubbing.
 
 stargazer(file) has the code for generating the regression results. It also has RI for all data
-trustExperimentsmt, ff, Lu have code specific to Mturk, friends and Lucid
+trustExperimentsmt, ff, Lu have code specific to Mturk, friends and Lucid.
 
-trustExperiments and trustExperiments 1 has some of the original code for dummy data
+trustExperiments and trustExperiments 1 has some of the original code for dummy data.
 
 
 
