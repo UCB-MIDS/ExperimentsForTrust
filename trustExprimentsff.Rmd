@@ -7,12 +7,33 @@ output:
 ---
 
 ```{r}
+library(ggplot2)
+library(ggthemr)
+library(dplyr)
+```
+
+```{r}
 # Load the expriment's data
 dff <- read.csv("./cleaneddata/ff.csv")
 head(dff)
 ``` 
 ```{r}
+dff$Outcome <- ifelse(dff$Q7=="I do not trust what the speaker was saying.", "Trust", ifelse(dff$Q7=="I trust what the speaker was saying.", "No Trust", "NA"))
+
 summary(dff)
+```
+
+
+```{r}
+ggthemr('earth', type="outer", layout='scientific', spacing=2)
+
+p2 <- ggplot(data=dff %>% filter(Outcome != "NA"), aes(x=FL_3_DO)) +
+  geom_bar(aes(y=FL_3_DO, fill=Outcome), stat = "identity") +
+  labs(title="Counts", y="Total Counts", x = "Tmt vs. Control") +
+  ylab("") +
+  theme_classic() #+ theme(legend.position = "none")
+
+p2
 ```
 
 ```{r}
