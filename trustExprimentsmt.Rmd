@@ -79,7 +79,7 @@ summary(lrmt2)$coefficients[,2]['treat_rnd']
 # Generic function to randomly(pseudo) pick the treatment assignments
 coeff_treat_rnd <- function(d) {
   d$treat_rnd = sample(d$treat)
-  lmr = lm(trust ~ treat_rnd, data=dmt, na.action = na.omit)
+  lmr = lm(trust ~ treat_rnd, data=d, na.action = na.omit)
   return (lmr$coefficients['treat_rnd'])
 }
 
@@ -87,8 +87,8 @@ coeff_treat_rnd <- function(d) {
 coeff_treat_rnd(dmt)
 ```
 ```{r}
-# 1K Randomizations
-h.distribution.under.sharp.null <- replicate(10000, coeff_treat_rnd(dmt))
+# 100K Randomizations
+h.distribution.under.sharp.null <- replicate(100000, coeff_treat_rnd(dmt))
 h.ate.mean <- mean(h.distribution.under.sharp.null)
 paste0("Mean fromm 1k randomizations: ", h.ate.mean)
 
@@ -107,12 +107,12 @@ abline(v = mean(h.distribution.under.sharp.null), col = 'orange')
 ```
 ```{r}
 # p value
-pv = mean(h.distribution.under.sharp.null >= ate)
+pv = mean(abs(h.distribution.under.sharp.null) >= abs(ate))
 paste0('p value: ', pv)
 ```
 ```{r}
 # num of assignments that generate an estimated ATE at least as large as the actual
-n <- sum(h.distribution.under.sharp.null >= ate)
+n <- sum(abs(h.distribution.under.sharp.null) >= abs(ate))
 paste0("Number of assignments that generate an ATE at least as large as what we got from the experiment: ", n)
 ```
 

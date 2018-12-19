@@ -80,8 +80,8 @@ coeff_treat_rnd <- function(d) {
 coeff_treat_rnd(dall)
 ```
 ```{r}
-# 10K Randomizations
-h.distribution.under.sharp.null <- replicate(10000, coeff_treat_rnd(dall))
+# 100K Randomizations
+h.distribution.under.sharp.null <- replicate(100000, coeff_treat_rnd(dall))
 h.ate.mean <- mean(h.distribution.under.sharp.null)
 paste0("Mean fromm 1k randomizations: ", h.ate.mean)
 
@@ -100,7 +100,7 @@ abline(v = mean(h.distribution.under.sharp.null), col = 'orange')
 ```{r}
 # Values close to what we get
 pn = sum(abs(h.distribution.under.sharp.null) >= abs(ate))
-paste0('p value: ', pn)
+paste0('Values bigger than the ATE: ', pn)
 
 # 2 tailed p value
 pv = mean(abs(h.distribution.under.sharp.null) >= abs(ate))
@@ -110,26 +110,43 @@ paste0('p value: ', pv)
 # RI by randomizing within male and female groups
 dallf = dall[which(dall$female == 1), ]
 dallf$treat_rnd = sample(dallf$treat)
-head(dallf)
-summary(dallf)
 ```
 ```{r}
 # RI by randomizing within male and female groups
 dallm = dall[which(dall$female == 0), ]
 dallm$treat_rnd = sample(dallm$treat)
-head(dallm)
-summary(dallm)
 ```
 ```{r}
 dall2 = rbind(dallf, dallm)
-head(dall2)
-summary(dall2)
+
 ```
+
 ```{r}
-# 100K Randomizations
-h.distribution.under.sharp.null.2 <- replicate(100000, coeff_treat_rnd(dall2))
+# Generic function to randomly(pseudo) pick the treatment assignments
+# This randomizes within the M and F groupos
+coeff_treat_rnd_s <- function(d) {
+  
+  df = d[which(d$female == 1), ]
+  df$treat_rnd = sample(df$treat)
+  
+  dm = d[which(d$female == 0), ]
+  dm$treat_rnd = sample(dm$treat)
+  
+  da = rbind(df, dm)
+  
+  lms = lm(trust ~ treat_rnd + female * treat, data=da, na.action = na.omit)
+  return (lms$coefficients['treat_rnd'])
+}
+
+# Trying another randomization
+coeff_treat_rnd_s(dall2)
+```
+
+```{r}
+# 50K Randomizations
+h.distribution.under.sharp.null.2 <- replicate(50000, coeff_treat_rnd_s(dall2))
 h.ate.mean.2 <- mean(h.distribution.under.sharp.null.2)
-paste0("Mean fromm 100k randomizations: ", h.ate.mean.2)
+paste0("Mean fromm 1k randomizations: ", h.ate.mean.2)
 
 ```
 ```{r}
