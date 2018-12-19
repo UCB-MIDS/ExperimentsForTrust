@@ -18,7 +18,7 @@ dlu <- read.csv("./cleaneddata/lucid.csv")
 head(dlu)
 ``` 
 ```{r}
-dlu$Outcome <- ifelse(dlu$Q7=="I do not trust what the speaker was saying.", "Trust", ifelse(dlu$Q7=="I trust what the speaker was saying.", "No Trust", "NA"))
+dlu$Outcome <- ifelse(dlu$Q7=="I do not trust what the speaker was saying.", "No Trust", ifelse(dlu$Q7=="I trust what the speaker was saying.", "Trust", "NA"))
 
 summary(dlu)
 ```

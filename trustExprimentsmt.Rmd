@@ -18,7 +18,7 @@ dmt <- read.csv("./cleaneddata/mturk.csv")
 head(dmt)
 ``` 
 ```{r}
-dmt$Outcome <- ifelse(dmt$Q7=="I do not trust what the speaker was saying.", "Trust", ifelse(dmt$Q7=="I trust what the speaker was saying.", "No Trust", "NA"))
+dmt$Outcome <- ifelse(dmt$Q7=="I do not trust what the speaker was saying.", "No Trust", ifelse(dmt$Q7=="I trust what the speaker was saying.", "Trust", "NA"))
 
 summary(dmt)
 ```

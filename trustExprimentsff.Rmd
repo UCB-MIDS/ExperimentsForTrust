@@ -18,7 +18,7 @@ dff <- read.csv("./cleaneddata/ff.csv")
 head(dff)
 ``` 
 ```{r}
-dff$Outcome <- ifelse(dff$Q7=="I do not trust what the speaker was saying.", "Trust", ifelse(dff$Q7=="I trust what the speaker was saying.", "No Trust", "NA"))
+dff$Outcome <- ifelse(dff$Q7=="I do not trust what the speaker was saying.", "No Trust", ifelse(dff$Q7=="I trust what the speaker was saying.", "Trust", "NA"))
 
 summary(dff)
 ```
