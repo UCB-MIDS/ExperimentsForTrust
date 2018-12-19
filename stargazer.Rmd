@@ -1,5 +1,5 @@
 ---
-title: "Document to Produce Stargazer Table"
+title: "Document to Produce Stargazer Table and analysis on data combined from all sources"
 author: "Group"
 output:
   pdf_document: default
